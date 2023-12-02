@@ -2,4 +2,4 @@
 
 test:
 	export PYTHONPATH=$$PYTHONPATH:$(PWD); \
-    python -m unittest discover -p '*.py' 2023
+    python -m unittest discover . '*.py'
