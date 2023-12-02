@@ -12,14 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        cache: 'pip'
-    - run: pip install -r requirements.txt
-    
-    - name: Setup jsut
-      run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to . --tag '1.16.0'
-    
-    - name: Run tests
-      run: ./just test
+    - uses: actions/setup-python@v4    
+    - run: make
