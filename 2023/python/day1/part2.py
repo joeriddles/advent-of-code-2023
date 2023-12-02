@@ -9,6 +9,8 @@ import re
 import sys
 import unittest
 
+BASE_DIR = pathlib.Path(__file__).parent
+
 class Tests(unittest.TestCase):
     def test_example(self):
         input: list[str] = """two1nine
@@ -24,7 +26,7 @@ zoneight234
         assert sum(actual) == 281
     
     def test_file(self):
-        input = pathlib.Path("input.txt").read_text().splitlines()
+        input = pathlib.Path(BASE_DIR / "input.txt").read_text().splitlines()
         actual = sum(main(input))
         assert actual == 54_100
     
