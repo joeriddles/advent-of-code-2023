@@ -13,7 +13,7 @@ treb7uchet""".splitlines()
         assert actual == expected
     
     def test_file(self):
-        input = path.read_text().splitlines()
+        input = pathlib.Path("input.txt").read_text().splitlines()
         actual = sum(main(input))
         assert actual == 54_877
     
