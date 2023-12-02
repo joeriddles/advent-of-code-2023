@@ -17,9 +17,11 @@ jobs:
         python-version: '3.11'
         cache: 'pip'
     - run: pip install -r requirements.txt
-    # - uses: extractions/setup-just@v1
+    
+    - name: Setup jsut
+      working-directory: ./2023/python
+      run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to . --tag '1.16.0'
+    
     - name: Run tests
-      run: |
-        cd 2023/python
-        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to . --tag '1.16.0'
-        ./just test
+      working-directory: ./2023/python
+      run: ./just test
