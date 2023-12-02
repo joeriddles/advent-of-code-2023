@@ -8,13 +8,13 @@ on:
   workflow_dispatch:
 
 jobs:
-    tests:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-python@v4
-        - name: Run tests
-          run: |
-            git clone 'https://mpr.makedeb.org/just' && cd just && makedeb -si
-            cd 2023/python
-            just test
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+    - name: Run tests
+      run: |
+        cd 2023/python
+        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to .
+        ./just test
