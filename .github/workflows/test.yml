@@ -19,9 +19,7 @@ jobs:
     - run: pip install -r requirements.txt
     
     - name: Setup jsut
-      working-directory: ./2023/python
       run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to . --tag '1.16.0'
     
     - name: Run tests
-      working-directory: ./2023/python
       run: ./just test
