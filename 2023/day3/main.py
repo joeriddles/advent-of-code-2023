@@ -7,18 +7,18 @@ import unittest
 import sys
 
 BASE_DIR = pathlib.Path(__file__).parent
-DEBUG = False
+DEBUG = True
 
 class Tests(unittest.TestCase):
 
     def test_one_part_number(self):
         input = ["1#"]
-        actual = main(input)
+        actual = part1(input)
         self.assertEqual(actual, [1])
 
     def test_two_part_numbers(self):
         input = ["1#.2#"]
-        actual = main(input)
+        actual = part1(input)
         self.assertEqual(actual, [1, 2])
     
     def test_one_part_diagonal(self):
@@ -26,7 +26,7 @@ class Tests(unittest.TestCase):
             "1.",
             ".#"
         ]
-        actual = main(input)
+        actual = part1(input)
         self.assertEqual(actual, [1])
 
     def test_example(self):
@@ -42,7 +42,7 @@ class Tests(unittest.TestCase):
             "...$.*....",
             ".664.598..",
         ]
-        actual = main(input)
+        actual = part1(input)
         
         expected = [467, 35, 633, 617, 592, 755, 664, 598]
         self.assertEqual(actual, expected)
@@ -55,11 +55,28 @@ class Tests(unittest.TestCase):
             ".479.",
             ".....",
         ]
-        actual = main(input)
+        actual = part1(input)
         self.assertEqual(actual, [])
 
     def test_empty(self):
-        assert main([]) == []
+        assert part1([]) == []
+
+    def test_part2_example(self):
+        input = [
+            "467..114..",
+            "...*......",
+            "..35..633.",
+            "......#...",
+            "617*......",
+            ".....+.58.",
+            "..592.....",
+            "......755.",
+            "...$.*....",
+            ".664.598..",
+        ]
+        actual = part2(input)
+        expected = [16345, 451490]
+        self.assertEqual(actual, expected)
 
 
 @dataclasses.dataclass
@@ -92,17 +109,16 @@ class Part:
         start_y = self.start.y - 1
         end_x = self.end.x + 1 + 1  # add extra 1 because slice end is non-inclusive
         end_y = self.end.y + 1 + 1
-
-        if DEBUG:
-            print(f"{self.start.x}:{self.end.x} -> {start_x}:{end_x}")
-            print(f"{self.start.y}:{self.end.y} -> {start_y}:{end_y}")
-
         points_to_check: list[Point] = [
             Point(x, y)
             for y in range(start_y, end_y)
             for x in range(start_x, end_x)
         ]
         return points_to_check
+
+    def contains(self, point: Point) -> bool:
+        return self.start.x <= point.x <= self.end.x \
+            and self.start.y <= point.y <= self.end.y
 
 
 class Grid:
@@ -112,7 +128,7 @@ class Grid:
         self.lines = lines
         self.parts = self._locate_parts()
     
-    def solve(self) -> list[int]:
+    def solve_part1(self) -> list[int]:
         valid_part_numbers: list[int] = []
 
         for part in self.parts:
@@ -138,6 +154,35 @@ class Grid:
 
         return valid_part_numbers
     
+    def solve_part2(self) -> list[int]:
+        gears: set[tuple[int, int]] = set()
+
+        for part in self.parts:
+            points_to_check = part.generate_points_to_check()
+            for point in points_to_check:
+                char = self.get(point)
+                
+                if char == "*":
+                    gear_part = Part(-1, point, point)
+                    gear_points_to_check = gear_part.generate_points_to_check()
+
+                    for gear_point in gear_points_to_check:
+                        gear_point_char = self.get(gear_point)
+                        if gear_point_char.isnumeric() and not part.contains(gear_point):
+                            other_part = self.get_part(gear_point)
+                            if other_part:
+
+                                gear: tuple[int, int] = tuple(sorted((part.number, other_part.number)))  # type: ignore
+                                if gear not in gears:
+                                    gears.add(gear)
+
+                                    if DEBUG:
+                                        print(gear)
+
+        return sorted([gear_one * gear_two for (gear_one, gear_two) in gears])
+
+
+
     def _locate_parts(self) -> list[Part]:
         parts = []
         
@@ -159,11 +204,23 @@ class Grid:
         except LookupError:
             return "."
 
+    def get_part(self, point: Point) -> Part | None:
+        for part in self.parts:
+            if part.contains(point):
+                return part
+        return None
 
-def main(input: list[str]) -> list[int]:
+
+def part1(input: list[str]) -> list[int]:
     grid = Grid(input)
-    part_numbers = grid.solve()
+    part_numbers = grid.solve_part1()
     return part_numbers
+
+
+def part2(input: list[str]) -> list[int]:
+    grid = Grid(input)
+    x = grid.solve_part2()
+    return x
 
 
 if __name__ == "__main__":
@@ -175,5 +232,8 @@ if __name__ == "__main__":
     else:
         input = sys.argv[1:]
 
-    solution = main(input)
-    print(sum(solution))
+    # solution = part1(input)
+    # print("Part 1: ", sum(solution))
+
+    solution = part2(input)
+    print("Part 2: ", sum(solution))
