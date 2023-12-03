@@ -7,18 +7,18 @@ import unittest
 import sys
 
 BASE_DIR = pathlib.Path(__file__).parent
-DEBUG = True
+DEBUG = False
 
 class Tests(unittest.TestCase):
 
     def test_one_part_number(self):
         input = ["1#"]
-        actual = part1(input)
+        actual = Grid(input).solve_part1()
         self.assertEqual(actual, [1])
 
     def test_two_part_numbers(self):
         input = ["1#.2#"]
-        actual = part1(input)
+        actual = Grid(input).solve_part1()
         self.assertEqual(actual, [1, 2])
     
     def test_one_part_diagonal(self):
@@ -26,7 +26,7 @@ class Tests(unittest.TestCase):
             "1.",
             ".#"
         ]
-        actual = part1(input)
+        actual = Grid(input).solve_part1()
         self.assertEqual(actual, [1])
 
     def test_example(self):
@@ -42,7 +42,7 @@ class Tests(unittest.TestCase):
             "...$.*....",
             ".664.598..",
         ]
-        actual = part1(input)
+        actual = Grid(input).solve_part1()
         
         expected = [467, 35, 633, 617, 592, 755, 664, 598]
         self.assertEqual(actual, expected)
@@ -55,11 +55,11 @@ class Tests(unittest.TestCase):
             ".479.",
             ".....",
         ]
-        actual = part1(input)
+        actual = Grid(input).solve_part1()
         self.assertEqual(actual, [])
 
     def test_empty(self):
-        assert part1([]) == []
+        self.assertEqual(Grid([]).solve_part1(), [])
 
     def test_part2_example(self):
         input = [
@@ -74,7 +74,7 @@ class Tests(unittest.TestCase):
             "...$.*....",
             ".664.598..",
         ]
-        actual = part2(input)
+        actual = Grid(input).solve_part2()
         expected = [16345, 451490]
         self.assertEqual(actual, expected)
 
@@ -155,6 +155,8 @@ class Grid:
         return valid_part_numbers
     
     def solve_part2(self) -> list[int]:
+        # TODO: refactor this monstrosity...
+
         gears: set[tuple[int, int]] = set()
 
         for part in self.parts:
@@ -211,18 +213,6 @@ class Grid:
         return None
 
 
-def part1(input: list[str]) -> list[int]:
-    grid = Grid(input)
-    part_numbers = grid.solve_part1()
-    return part_numbers
-
-
-def part2(input: list[str]) -> list[int]:
-    grid = Grid(input)
-    x = grid.solve_part2()
-    return x
-
-
 if __name__ == "__main__":
     path = pathlib.Path(sys.argv[1])
 
@@ -232,8 +222,10 @@ if __name__ == "__main__":
     else:
         input = sys.argv[1:]
 
-    # solution = part1(input)
-    # print("Part 1: ", sum(solution))
+    grid = Grid(input)
 
-    solution = part2(input)
+    solution = grid.solve_part1()
+    print("Part 1: ", sum(solution))
+
+    solution = grid.solve_part2()
     print("Part 2: ", sum(solution))
