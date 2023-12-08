@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import pathlib
 import re
 import unittest
@@ -18,39 +19,49 @@ Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
 Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
 """.splitlines()
-        actual = main(input)
+        actual = part1(input)
         expected = [8, 2, 2, 1, 0, 0]
         assert actual == expected
 
-    def test_empty(self):
-        assert main([]) == []
-    
 
-def main(input: list[str]) -> list[int]:
-    solution: list[int] = []
+@dataclasses.dataclass
+class Card:
+    id: int
+    winning_numbers: list[int]
+    card_numbers: list[int]
 
-    for line in input:
-        left, card_str = tuple(line.split("|", maxsplit=1))
+    @classmethod
+    def from_str(cls, string: str) -> Card:
+        left, card_str = tuple(string.split("|", maxsplit=1))
         card_id_str, winning_str = left.split(":", maxsplit=1)
         
         winning_numbers = [int(num) for num in winning_str.split()]
         card_numbers = [int(num) for num in card_str.split()]
-        
+
         card_id = -1
         card_match = CARD_PATTERN.match(card_id_str)
         if card_match:
             card_id = int(card_match.groups()[0])
         
-        matching_numbers = set(winning_numbers) & set(card_numbers)
+        return Card(card_id, winning_numbers, card_numbers)
+
+    def get_matching_numbers(self) -> set[int]:
+        return set(self.winning_numbers) & set(self.card_numbers)
+
+    def calculate_points(self) -> int:
+        matching_numbers = self.get_matching_numbers()
         if not matching_numbers:
-            solution.append(0)
-            continue
+            return 0
     
         power = len(matching_numbers) - 1
         points = 2 ** power
-        solution.append(points)
+        return points
 
-    return solution
+
+def part1(input: list[str]) -> list[int]:
+    cards = [Card.from_str(line) for line in input]
+    points = [card.calculate_points() for card in cards]
+    return points
 
 
 if __name__ == "__main__":
@@ -62,5 +73,5 @@ if __name__ == "__main__":
     else:
         input = sys.argv[1:]
 
-    solution = main(input)
+    solution = part1(input)
     print(sum(solution))
